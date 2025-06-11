@@ -3,27 +3,63 @@ const API_URL = import.meta.env.PROD
   ? `${window.location.origin}/api`
   : 'http://localhost:5001'
 
-class API {
-  static async request(endpoint, options = {}) {
+class APIClient {
+  async request(endpoint, options = {}) {
+    const url = `${API_URL}${endpoint}`
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    }
+
     try {
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options
-      })
-      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      return await response.json()
+      console.log(`API Request: ${config.method || 'GET'} ${url}`)
+      
+      const response = await fetch(url, config)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      console.log(`API Response:`, data)
+      
+      return data
     } catch (error) {
-      console.error(`API Error [${options.method || 'GET'}] ${endpoint}:`, error)
+      console.error(`API Error [${config.method || 'GET'}] ${endpoint}:`, error)
       throw error
     }
   }
 
-  static get(endpoint) { return this.request(endpoint) }
-  static post(endpoint, data) { return this.request(endpoint, { method: 'POST', body: JSON.stringify(data) }) }
-  static put(endpoint, data) { return this.request(endpoint, { method: 'PUT', body: JSON.stringify(data) }) }
-  static patch(endpoint, data) { return this.request(endpoint, { method: 'PATCH', body: JSON.stringify(data) }) }
-  static delete(endpoint) { return this.request(endpoint, { method: 'DELETE' }) }
+  get(endpoint) {
+    return this.request(endpoint)
+  }
+
+  post(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  patch(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
+  delete(endpoint) {
+    return this.request(endpoint, {
+      method: 'DELETE',
+    })
+  }
 }
+
+const API = new APIClient()
 
 // ===== CHATS =====
 export const getChats = () => API.get('/chats')
