@@ -1,18 +1,31 @@
-import { defineConfig } from "vite"
+
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-  server: {
-    host: true,
-    port: 5173,
-    strictPort: true,
-    cors: true,
-  },
   build: {
-    outDir: "dist",
-    assetsDir: "assets",
-    sourcemap: true,
+    cssMinify: false, // Désactive la minification CSS temporairement
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['json-server']
+        }
+      }
+    }
   },
-  optimizeDeps: {
-    include: [],
-  },
+  server: {
+
+    port: 5173,
+
+
+
+
+
+
+
+
+
+
+
+    open: true
+  }
 })
